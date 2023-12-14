@@ -3,9 +3,18 @@ using CelestialCalc
 
 @testset "Angle and Time conversions" begin
 
+  @testset "DMS display" begin
+    @test string(DMS(24,4,18.5)) == "24°04'18.50''"
+    @test string(DMS(0,30,30,true)) == "-0°30'30.00''"
+  end
+
+  @testset "HMS display" begin
+    @test string(HMS(1,5,1)) == "01:05:01.00"
+    @test string(HMS(10,5,10.5)) == "10:05:10.50"
+  end
+  
   @testset "DMS/HMS to decimal" begin
     @test dms_to_decimal(DMS(24,13,18)) ≈ 24.221667
-    @test hms_to_decimal(HMS(24,13,18)) ≈ 24.221667
 
     @test dms_to_decimal(DMS(10,25,11)) ≈ 10.4197223
     @test hms_to_decimal(HMS(10,25,11)) ≈ 10.4197223

@@ -2,3 +2,6 @@ name = "CelestialCalc"
 uuid = "b574eafa-d90c-447d-b581-2e8df5fb8454"
 authors = ["Pedro Martins <pedrosbarbosamartins@gmail.com>"]
 version = "0.1.0"
+
+[deps]
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"

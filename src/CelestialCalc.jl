@@ -1,5 +1,7 @@
 module CelestialCalc
 
+using Printf
+
 export DMS, HMS
 export dms_to_decimal, hms_to_decimal, decimal_to_dms, decimal_to_hms
 
@@ -16,6 +18,22 @@ struct HMS
   hours::Integer
   minutes::Integer
   seconds::Float64
+end
+
+function Base.show(io::IO, dms::DMS)
+  (; degrees, minutes, seconds, isnegative) = dms
+  sign = isnegative ? "-" : ""
+  minutes = lpad(minutes,2,"0")
+  seconds = Printf.@sprintf("%05.2f", seconds)
+  print(io, "$(sign)$(degrees)°$(minutes)'$(seconds)''")
+end
+
+function Base.show(io::IO, hms::HMS)
+  (; hours, minutes, seconds) = hms
+  hours = lpad(hours,2,"0")
+  minutes = lpad(minutes,2,"0")
+  seconds = Printf.@sprintf("%05.2f", seconds)
+  print(io, "$(hours):$(minutes):$(seconds)")
 end
 
 function dms_to_decimal(dms::DMS)
