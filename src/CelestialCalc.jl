@@ -1,43 +1,30 @@
 module CelestialCalc
 
+using Dates
 using Printf
 
-export DMS, HMS
-export dms_to_decimal, hms_to_decimal, decimal_to_dms, decimal_to_hms
+export AngleDMS
+export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
 
-struct DMS
+struct AngleDMS
   degrees::Integer
   minutes::Integer
   seconds::Float64
   isnegative::Bool
 end
 
-DMS(x,y,z) = DMS(x,y,z,false)
+AngleDMS(x,y,z) = AngleDMS(x,y,z,false)
 
-struct HMS
-  hours::Integer
-  minutes::Integer
-  seconds::Float64
-end
-
-function Base.show(io::IO, dms::DMS)
-  (; degrees, minutes, seconds, isnegative) = dms
+function Base.show(io::IO, angle::AngleDMS)
+  (; degrees, minutes, seconds, isnegative) = angle
   sign = isnegative ? "-" : ""
   minutes = lpad(minutes,2,"0")
   seconds = Printf.@sprintf("%05.2f", seconds)
   print(io, "$(sign)$(degrees)°$(minutes)'$(seconds)''")
 end
 
-function Base.show(io::IO, hms::HMS)
-  (; hours, minutes, seconds) = hms
-  hours = lpad(hours,2,"0")
-  minutes = lpad(minutes,2,"0")
-  seconds = Printf.@sprintf("%05.2f", seconds)
-  print(io, "$(hours):$(minutes):$(seconds)")
-end
-
-function dms_to_decimal(dms::DMS)
-  (; degrees, minutes, seconds, isnegative) = dms
+function angle_to_decimal(angle::AngleDMS)
+  (; degrees, minutes, seconds, isnegative) = angle
   sign = isnegative ? -1 : 1
   decimal_minutes = seconds / 60
   total_minutes = minutes + decimal_minutes
@@ -46,14 +33,15 @@ function dms_to_decimal(dms::DMS)
   return sign * total_degrees
 end
 
-function hms_to_decimal(hms::HMS)
-  (; hours, minutes, seconds) = hms
-  return dms_to_decimal(DMS(hours, minutes, seconds))
+function time_to_decimal(hms::Time)
+  hours = Dates.value(Hour(hms))
+  minutes = Dates.value(Minute(hms))
+  seconds = Dates.value(Second(hms))
+  return angle_to_decimal(AngleDMS(hours, minutes, seconds))
 end
 
-function decimal_to_dms(decimal::Float64)
+function decimal_to_angle(decimal::Float64)
   # todo: handle cases where minutes is ~59.999 and rounds to 60
-  isnegative = decimal < 0 ? true : false
   abs_decimal = abs(decimal)
   degrees = trunc(Int, abs_decimal)
   frac_abs_decimal, _ = modf(abs_decimal)
@@ -62,12 +50,13 @@ function decimal_to_dms(decimal::Float64)
   decimal_minutes_frac, _ = modf(decimal_minutes)
   decimal_seconds = 60 * decimal_minutes_frac
   seconds = round(decimal_seconds; digits=2)
-  return DMS(degrees, minutes, seconds, isnegative)
+  return AngleDMS(degrees, minutes, seconds, decimal < 0)
 end
 
-function decimal_to_hms(decimal::Float64)
-  (; degrees, minutes, seconds) = decimal_to_dms(decimal)
-  return HMS(degrees, minutes, seconds)
+function decimal_to_time(decimal::Float64)
+  (; degrees, minutes, seconds) = decimal_to_angle(decimal)
+  milliseconds, seconds = modf(seconds)
+  return Time(degrees, minutes, trunc(seconds), trunc(100*milliseconds))
 end
 
 end # module CelestialCalc

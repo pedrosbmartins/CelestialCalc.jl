@@ -1,41 +1,36 @@
 using Test
+using TimeZones
+
 using CelestialCalc
 
-@testset "Angle and Time conversions" begin
-
-  @testset "DMS display" begin
-    @test string(DMS(24,4,18.5)) == "24°04'18.50''"
-    @test string(DMS(0,30,30,true)) == "-0°30'30.00''"
-  end
-
-  @testset "HMS display" begin
-    @test string(HMS(1,5,1)) == "01:05:01.00"
-    @test string(HMS(10,5,10.5)) == "10:05:10.50"
+@testset "AngleDMS" begin
+  @testset "AngleDMS display" begin
+    @test string(AngleDMS(24,4,18.5)) == "24°04'18.50''"
+    @test string(AngleDMS(0,30,30,true)) == "-0°30'30.00''"
   end
   
-  @testset "DMS/HMS to decimal" begin
-    @test dms_to_decimal(DMS(24,13,18)) ≈ 24.221667
-
-    @test dms_to_decimal(DMS(10,25,11)) ≈ 10.4197223
-    @test hms_to_decimal(HMS(10,25,11)) ≈ 10.4197223
-
-    @test dms_to_decimal(DMS(13,4,10)) ≈ 13.0694445
-    @test hms_to_decimal(HMS(13,4,10)) ≈ 13.0694445
-
-    @test dms_to_decimal(DMS(300,20,0)) ≈ 300.333333
+  @testset "AngleDMS to decimal" begin
+    @test angle_to_decimal(AngleDMS(24,13,18)) ≈ 24.221667
+    @test angle_to_decimal(AngleDMS(10,25,11)) ≈ 10.4197223
+    @test angle_to_decimal(AngleDMS(13,4,10,true)) ≈ -13.0694445
   end
 
-  @testset "decimal to DMS/HMS" begin
-    @test decimal_to_dms(24.221667) == DMS(24,13,18)
-    @test decimal_to_hms(24.221667) == HMS(24,13,18)
-
-    @test decimal_to_dms(20.352) == DMS(20,21,7.2)
-    @test decimal_to_hms(20.352) == HMS(20,21,7.2)
-
-    @test decimal_to_dms(10.2958) == DMS(10,17,44.88)
-    @test decimal_to_hms(10.2958) == HMS(10,17,44.88)
-
-    @test decimal_to_dms(-0.508333) == DMS(0,30,30,true)
+  @testset "decimal to AngleDMS" begin
+    @test decimal_to_angle(24.221667) == AngleDMS(24,13,18)
+    @test decimal_to_angle(20.352) == AngleDMS(20,21,7.2)
+    @test decimal_to_angle(10.2958) == AngleDMS(10,17,44.88)
+    @test decimal_to_angle(-0.508333) == AngleDMS(0,30,30,true)
   end
+end
 
+@testset "Time conversions to/from decimal" begin
+  @testset "Time to decimal" begin
+    @test time_to_decimal(Time(10,25,11)) ≈ 10.4197223
+    @test time_to_decimal(Time(13,4,10)) ≈ 13.0694445
+  end
+  
+  @testset "decimal to Time" begin
+    @test decimal_to_time(20.352) == Time(20,21,7,20)
+    @test decimal_to_time(10.2958) == Time(10,17,44,88)
+  end
 end
