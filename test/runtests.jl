@@ -34,3 +34,10 @@ end
     @test decimal_to_time(10.2958) == Time(10,17,44,88)
   end
 end
+
+@testset "Time conversions" begin
+  @testset "UT to GST" begin
+    @test ut_to_gst(ZonedDateTime(2010,2,7,23,30,tz"UTC")) ≈ 8.698090630099976
+    @test ut_to_gst(ZonedDateTime(2014,12,13,1,tz"UTC")) ≈ 6.442866622675775
+  end
+end

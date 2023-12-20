@@ -2,9 +2,11 @@ module CelestialCalc
 
 using Dates
 using Printf
+using TimeZones
 
 export AngleDMS
 export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
+export ut_to_gst
 
 struct AngleDMS
   degrees::Integer
@@ -57,6 +59,23 @@ function decimal_to_time(decimal::Float64)
   (; degrees, minutes, seconds) = decimal_to_angle(decimal)
   milliseconds, seconds = modf(seconds)
   return Time(degrees, minutes, trunc(seconds), trunc(100*milliseconds))
+end
+
+function ut_to_gst(zdt::ZonedDateTime)
+  year = Dates.value(Year(Date(zdt)))
+  zdt_0h = ZonedDateTime(Date(zdt), tz"UTC")
+  JD = datetime2julian(DateTime(zdt_0h))
+  JD₀ = datetime2julian(DateTime(year,1,1))
+  days = JD - JD₀
+  T = (JD₀ - 2_415_020.0) / 36_525.0
+  R = 6.6460656 + 2400.051262T + 0.00002581T^2
+  B = 24 - R + 24(year - 1900)
+  T₀ = 0.0657098days - B
+  UT = time_to_decimal(Time(zdt))
+  GST = T₀ + 1.002738UT
+  GST < 0 && (GST += 24)
+  GST > 24 && (GST -= 24)
+  return GST
 end
 
 end # module CelestialCalc
