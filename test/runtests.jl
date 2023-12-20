@@ -40,4 +40,9 @@ end
     @test ut_to_gst(ZonedDateTime(2010,2,7,23,30,tz"UTC")) ≈ 8.698090630099976
     @test ut_to_gst(ZonedDateTime(2014,12,13,1,tz"UTC")) ≈ 6.442866622675775
   end
+
+  @testset "GST to LST" begin
+    @test gst_to_lst(time_to_decimal(Time(2,3,41)), -40.0) ≈ 23.39472222222222
+    @test gst_to_lst(time_to_decimal(Time(6,26,34)), -77.0) ≈ 1.3094444444444444
+  end
 end

@@ -6,7 +6,7 @@ using TimeZones
 
 export AngleDMS
 export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
-export ut_to_gst
+export ut_to_gst, gst_to_lst
 
 struct AngleDMS
   degrees::Integer
@@ -72,10 +72,18 @@ function ut_to_gst(zdt::ZonedDateTime)
   B = 24 - R + 24(year - 1900)
   T₀ = 0.0657098days - B
   UT = time_to_decimal(Time(zdt))
-  GST = T₀ + 1.002738UT
-  GST < 0 && (GST += 24)
-  GST > 24 && (GST -= 24)
-  return GST
+  gst = T₀ + 1.002738UT
+  gst < 0 && (gst += 24)
+  gst >= 24 && (gst -= 24)
+  return gst
+end
+
+function gst_to_lst(gst::Float64, longitude::Float64)
+  adjust = longitude / 15
+  lst = gst + adjust
+  lst < 0 && (lst += 24)
+  lst >= 24 && (lst -= 24)
+  return lst
 end
 
 end # module CelestialCalc
