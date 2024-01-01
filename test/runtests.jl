@@ -29,18 +29,26 @@ end
     @test time_to_decimal(Time(13,4,10)) ≈ 13.0694445
   end
   
-  @testset "Decimal to Time" begin
-    @test decimal_to_time(20.352) == Time(20,21,7,20)
-    @test decimal_to_time(10.2958) == Time(10,17,44,88)
+@testset "Decimal to Time" begin
+    @test decimal_to_time(20.352) == Time(20,21,7,200)
+    @test decimal_to_time(10.2958) == Time(10,17,44,880)
+  end
+
+  @testset "LCT to UT" begin
+    @test local_to_universal_time(ZonedDateTime(2023,12,26,20,tz"UTC-3")) == ZonedDateTime(2023,12,26,23,tz"UTC")
   end
 
   @testset "UT to GST" begin
-    @test ut_to_gst(ZonedDateTime(2010,2,7,23,30,tz"UTC")) ≈ 8.698090630099976
-    @test ut_to_gst(ZonedDateTime(2014,12,13,1,tz"UTC")) ≈ 6.442866622675775
+    @test solar_to_prime_sidereal_time(ZonedDateTime(2010,2,7,23,30,tz"UTC")) ≈ 8.698090630099976
+    @test solar_to_prime_sidereal_time(ZonedDateTime(2014,12,13,1,tz"UTC")) ≈ 6.442866622675775
   end
 
   @testset "GST to LST" begin
-    @test gst_to_lst(time_to_decimal(Time(2,3,41)), -40.0) ≈ 23.39472222222222
-    @test gst_to_lst(time_to_decimal(Time(6,26,34)), -77.0) ≈ 1.3094444444444444
+    @test prime_to_local_sidereal_time(time_to_decimal(Time(2,3,41)), -40.0) ≈ 23.39472222222222
+    @test prime_to_local_sidereal_time(time_to_decimal(Time(6,26,34)), -77.0) ≈ 1.3094444444444444
+  end
+
+  @testset "LCT to LST" begin
+    @test local_civilian_to_sidereal_time(ZonedDateTime(2023,12,26,20,tz"UTC-3"), -42.94514) ≈ 2.4825123186
   end
 end
