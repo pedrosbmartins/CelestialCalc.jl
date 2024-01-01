@@ -4,20 +4,24 @@ using Dates
 using Printf
 using TimeZones
 
-export AngleDMS
+export Angle
 export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
 export local_to_universal_time, solar_to_prime_sidereal_time, prime_to_local_sidereal_time, local_civilian_to_sidereal_time
 
-struct AngleDMS
+struct Angle
   degrees::Integer
   minutes::Integer
   seconds::Float64
   isnegative::Bool
 end
 
-AngleDMS(x,y,z) = AngleDMS(x,y,z,false)
+Angle(x) = Angle(x,0,0)
+Angle(x,y) = Angle(x,y,0)
+Angle(x,y,z) = Angle(x,y,z,false)
+Angle(x,isneg::Bool) = Angle(x,0,0,isneg)
+Angle(x,y,isneg::Bool) = Angle(x,y,0,isneg)
 
-function Base.show(io::IO, angle::AngleDMS)
+function Base.show(io::IO, angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
   sign = isnegative ? "-" : ""
   minutes = lpad(minutes,2,"0")
@@ -25,7 +29,7 @@ function Base.show(io::IO, angle::AngleDMS)
   print(io, "$(sign)$(degrees)°$(minutes)'$(seconds)''")
 end
 
-function angle_to_decimal(angle::AngleDMS)
+function angle_to_decimal(angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
   sign = isnegative ? -1 : 1
   decimal_minutes = seconds / 60
@@ -40,7 +44,7 @@ function time_to_decimal(time::Time)
   minutes = Dates.minute(time)
   seconds = Dates.second(time)
   milliseconds = Dates.millisecond(time)
-  return angle_to_decimal(AngleDMS(hours, minutes, seconds + 0.001*milliseconds))
+  return angle_to_decimal(Angle(hours, minutes, seconds + 0.001*milliseconds))
 end
 
 function decimal_to_angle(decimal::Float64)
@@ -53,7 +57,7 @@ function decimal_to_angle(decimal::Float64)
   decimal_minutes_frac, _ = modf(decimal_minutes)
   decimal_seconds = 60 * decimal_minutes_frac
   seconds = round(decimal_seconds; digits=2)
-  return AngleDMS(degrees, minutes, seconds, decimal < 0)
+  return Angle(degrees, minutes, seconds, decimal < 0)
 end
 
 function decimal_to_time(decimal::Float64)
