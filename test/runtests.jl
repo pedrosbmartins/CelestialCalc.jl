@@ -62,6 +62,7 @@ end
     @test equatorial_to_horizon(angle_to_decimal(Angle(0,30,30,true)), 16.49583334, 25.0) ≈ HorizonCoordinates(-20.577738, 80.525393) atol=1e-6
 
     # from EquatorialCoordinates + local civilian date + latitude/longitude
-    @test equatorial_to_horizon(EquatorialCoordinates(Time(17,43,54), -22.166667), ZonedDateTime(2016,1,21,21,30,tz"EST"), LatLng(38.0,-78.0)) ≈ HorizonCoordinates(-73.455228, 341.554821)
+    @test equatorial_to_horizon(EquatorialCoordinates(Time(17,43,54), -22.166667), ZonedDateTime(2016,1,21,21,30,tz"EST"), LatLng(38.0,-78.0)) ≈ HorizonCoordinates(-73.455228, 341.554821) atol=1e-6
+    @test equatorial_to_horizon(EquatorialCoordinates(Time(5,56,28,280), 7.4096), ZonedDateTime(2023,12,26,20,30,tz"UTC-3"), LatLng(-22.38696,-42.94514)) ≈ HorizonCoordinates(37.332823, 60.687654) atol=1e-6
   end
 end
