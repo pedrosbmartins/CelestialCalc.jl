@@ -7,6 +7,8 @@ using TimeZones
 export Angle
 export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
 export local_to_universal_time, solar_to_prime_sidereal_time, prime_to_local_sidereal_time, local_civilian_to_sidereal_time
+export LatLng, EquatorialCoordinates, HorizonCoordinates
+export equatorial_to_horizon
 
 struct Angle
   degrees::Integer
@@ -98,6 +100,70 @@ end
 
 function local_civilian_to_sidereal_time(lct::ZonedDateTime, longitude::Float64)
   return lct |> solar_to_prime_sidereal_time |> (t -> prime_to_local_sidereal_time(t, longitude))
+end
+
+# Coordinate Systems
+
+struct LatLng
+  latitude::Float64
+  longitude::Float64
+end
+
+struct EquatorialCoordinates
+  α::Time
+  δ::Float64
+end
+
+function Base.show(io::IO, ec::EquatorialCoordinates)
+  (; α, δ) = ec
+  print(io, "EquatorialCoordinates α=$α δ=$(decimal_to_angle(δ))")
+end
+
+struct HorizonCoordinates
+  h::Float64
+  Az::Float64
+end
+
+function Base.isapprox(hc1::HorizonCoordinates, hc2::HorizonCoordinates; kwargs...)
+  return isapprox(hc1.h, hc2.h; kwargs...) && isapprox(hc1.Az, hc2.Az; kwargs...)
+end
+
+function Base.show(io::IO, hc::HorizonCoordinates)
+  (; h, Az) = hc
+  print(io, "HorizonCoordinates h=$(decimal_to_angle(h)) Az=$(decimal_to_angle(Az))")
+end
+
+function equatorial_to_horizon(δ::Float64, hour_angle::Time, latitude::Float64)
+  return equatorial_to_horizon(δ, time_to_decimal(hour_angle), latitude)
+end
+
+function equatorial_to_horizon(δ::Float64, hour_angle::Float64, latitude::Float64)
+  Φ = latitude
+  H_deg = 15hour_angle
+
+  # altitude h
+  sind_h = sind(δ)sind(Φ) + cosd(δ)cosd(Φ)cosd(H_deg)
+  h = asind(sind_h)
+
+  # azimuth Az
+  cos_Az = (sind(δ) - sind(Φ)sind_h) / (cosd(Φ)cosd(h))
+  Az = acosd(cos_Az)
+
+  # azimuth adjustment
+  (sind(H_deg) > 0) && (Az = 360 - Az)
+
+  return HorizonCoordinates(h, Az)
+end
+
+function equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_date::ZonedDateTime, latlong::LatLng)
+  (; α, δ) = eqcoord
+  (; latitude, longitude) = latlong
+
+  local_sidereal_time = local_civilian_to_sidereal_time(local_civilian_date, longitude)
+  H = local_sidereal_time - time_to_decimal(α)
+  (H < 0) && (H = H + 24)
+
+  return equatorial_to_horizon(δ, H, latitude)
 end
 
 end # module CelestialCalc

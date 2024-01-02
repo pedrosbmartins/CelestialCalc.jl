@@ -52,3 +52,16 @@ end
     @test local_civilian_to_sidereal_time(ZonedDateTime(2023,12,26,20,tz"UTC-3"), -42.94514) ≈ 2.4825123186
   end
 end
+
+@testset "Coordinate systems" begin
+  @testset "Equatorial to Horizon Coordinates" begin
+    # from declination (δ) + hour angle (Time) + latitude
+    @test equatorial_to_horizon(angle_to_decimal(Angle(0,30,30,true)), Time(16,29,45), 25.0) ≈ HorizonCoordinates(-20.577738, 80.525393) atol=1e-6
+
+    # from declination (δ) + hour angle (decimal) + latitude
+    @test equatorial_to_horizon(angle_to_decimal(Angle(0,30,30,true)), 16.49583334, 25.0) ≈ HorizonCoordinates(-20.577738, 80.525393) atol=1e-6
+
+    # from EquatorialCoordinates + local civilian date + latitude/longitude
+    @test equatorial_to_horizon(EquatorialCoordinates(Time(17,43,54), -22.166667), ZonedDateTime(2016,1,21,21,30,tz"EST"), LatLng(38.0,-78.0)) ≈ HorizonCoordinates(-73.455228, 341.554821)
+  end
+end
