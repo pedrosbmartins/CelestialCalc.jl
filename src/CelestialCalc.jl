@@ -9,7 +9,7 @@ export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
 export local_to_universal_time, solar_to_prime_sidereal_time, prime_to_local_sidereal_time, local_civilian_to_sidereal_time
 export LatLng, EquatorialCoordinates, HorizonCoordinates
 export equatorial_to_horizon
-export cartesian_projection
+export cartesian_projection, stereographic_projection
 
 struct Angle
   degrees::Integer
@@ -173,6 +173,18 @@ function cartesian_projection(hcoords::HorizonCoordinates)
   y = cosd(h)cosd(Az)
   z = sind(h)
   return [x,y,z]
+end
+
+function stereographic_projection(hcoords::HorizonCoordinates)
+  x,y,z = cartesian_projection(hcoords)
+
+  x = x / (z + 1)
+  y = y / (z + 1)
+
+  # invert East/West, normalize to [-1, 1]
+  x = (1 - x) - 1
+
+  return [x,y]
 end
 
 end # module CelestialCalc

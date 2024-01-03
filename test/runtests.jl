@@ -80,5 +80,19 @@ end
       @test cartesian_projection(HorizonCoordinates(45.0,180.0)) ≈ [0.0, -0.707107, 0.707107] atol=1e-6
       @test cartesian_projection(HorizonCoordinates(15.0,70.0)) ≈ [0.907673, 0.330366, 0.258819] atol=1e-6
     end
+
+    @testset "Stereographic" begin
+      @test stereographic_projection(HorizonCoordinates(0.0,0.0)) == [0.0, 1.0]
+      @test stereographic_projection(HorizonCoordinates(0.0,90.0)) == [-1.0, 0.0]
+      @test stereographic_projection(HorizonCoordinates(0.0,180.0)) == [0.0, -1.0]
+      @test stereographic_projection(HorizonCoordinates(0.0,270.0)) == [1.0, 0.0]
+      @test stereographic_projection(HorizonCoordinates(0.0,360.0)) == [0.0, 1.0]
+
+      @test stereographic_projection(HorizonCoordinates(90.0,0.0)) == [0.0, 0.0]
+      @test stereographic_projection(HorizonCoordinates(90.0,90.0)) == [0.0, 0.0]
+
+      @test stereographic_projection(HorizonCoordinates(45.0,180.0)) ≈ [0.0, -0.414214] atol=1e-6
+      @test stereographic_projection(HorizonCoordinates(15.0,70.0)) ≈ [-0.721052, 0.262441] atol=1e-6
+    end
   end
 end
