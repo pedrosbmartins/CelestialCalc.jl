@@ -9,6 +9,7 @@ export angle_to_decimal, time_to_decimal, decimal_to_angle, decimal_to_time
 export local_to_universal_time, solar_to_prime_sidereal_time, prime_to_local_sidereal_time, local_civilian_to_sidereal_time
 export LatLng, EquatorialCoordinates, HorizonCoordinates
 export equatorial_to_horizon
+export cartesian_projection
 
 struct Angle
   degrees::Integer
@@ -164,6 +165,14 @@ function equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_da
   (H < 0) && (H = H + 24)
 
   return equatorial_to_horizon(δ, H, latitude)
+end
+
+function cartesian_projection(hcoords::HorizonCoordinates)
+  (; h, Az) = hcoords
+  x = cosd(h)sind(Az)
+  y = cosd(h)cosd(Az)
+  z = sind(h)
+  return [x,y,z]
 end
 
 end # module CelestialCalc

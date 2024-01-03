@@ -65,4 +65,20 @@ end
     @test equatorial_to_horizon(EquatorialCoordinates(Time(17,43,54), -22.166667), ZonedDateTime(2016,1,21,21,30,tz"EST"), LatLng(38.0,-78.0)) ≈ HorizonCoordinates(-73.455228, 341.554821) atol=1e-6
     @test equatorial_to_horizon(EquatorialCoordinates(Time(5,56,28,280), 7.4096), ZonedDateTime(2023,12,26,20,30,tz"UTC-3"), LatLng(-22.38696,-42.94514)) ≈ HorizonCoordinates(37.332823, 60.687654) atol=1e-6
   end
+
+  @testset "Projection" begin
+    @testset "Cartesian" begin
+      @test cartesian_projection(HorizonCoordinates(0.0,0.0)) == [0.0, 1.0, 0.0]
+      @test cartesian_projection(HorizonCoordinates(0.0,90.0)) == [1.0, 0.0, 0.0]
+      @test cartesian_projection(HorizonCoordinates(0.0,180.0)) == [0.0, -1.0, 0.0]
+      @test cartesian_projection(HorizonCoordinates(0.0,270.0)) == [-1.0, 0.0, 0.0]
+      @test cartesian_projection(HorizonCoordinates(0.0,360.0)) == [0.0, 1.0, 0.0]
+
+      @test cartesian_projection(HorizonCoordinates(90.0,0.0)) == [0.0, 0.0, 1.0]
+      @test cartesian_projection(HorizonCoordinates(90.0,90.0)) == [0.0, 0.0, 1.0]
+
+      @test cartesian_projection(HorizonCoordinates(45.0,180.0)) ≈ [0.0, -0.707107, 0.707107] atol=1e-6
+      @test cartesian_projection(HorizonCoordinates(15.0,70.0)) ≈ [0.907673, 0.330366, 0.258819] atol=1e-6
+    end
+  end
 end
