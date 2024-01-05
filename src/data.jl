@@ -1,6 +1,16 @@
 import JSON
 
 """
+    Star
+
+Represent a star object and its data (coordinate and magnitude).
+"""
+struct Star{C<:Union{EquatorialCoordinates,HorizonCoordinates}}
+  coordinates::C
+  magnitude::Float64
+end
+
+"""
     brightstars_catalog
 
 Loads the Bright Stars catalog in JSON format as a list of [`Star`](@ref) with [`EquatorialCoordinates`](@ref).
