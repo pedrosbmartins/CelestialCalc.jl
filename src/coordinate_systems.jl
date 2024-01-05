@@ -93,33 +93,3 @@ function equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_da
 
   return equatorial_to_horizon(δ, H, latitude)
 end
-
-"""
-    cartesian_projection(hcoords::HorizonCoordinates) -> [Float64,Float64,Float64]
-
-Project [`HorizonCoordinates`](@ref) to the Cartesian coordinate system.
-"""
-function cartesian_projection(hcoords::HorizonCoordinates)
-  (; h, Az) = hcoords
-  x = cosd(h)sind(Az)
-  y = cosd(h)cosd(Az)
-  z = sind(h)
-  return [x,y,z]
-end
-
-"""
-    cartesian_projection(hcoords::HorizonCoordinates) -> [Float64,Float64,Float64]
-
-Project [`HorizonCoordinates`](@ref) to the 2-dimensional Cartesian coordinate system using the stereographic projection.
-"""
-function stereographic_projection(hcoords::HorizonCoordinates)
-  x,y,z = cartesian_projection(hcoords)
-
-  x = x / (z + 1)
-  y = y / (z + 1)
-
-  # invert East/West, normalize to [-1, 1]
-  x = (1 - x) - 1
-
-  return [x,y]
-end
