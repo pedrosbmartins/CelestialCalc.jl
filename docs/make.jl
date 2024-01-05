@@ -11,3 +11,7 @@ makedocs(
     "time.md",
   ]
 )
+
+deploydocs(
+    repo = "github.com/pedrosbmartins/CelestialCalc.jl.git",
+)
