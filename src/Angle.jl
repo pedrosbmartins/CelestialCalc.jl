@@ -38,7 +38,7 @@ julia> Angle(45,true)
 -45°00'00.00''
 ```
 """
-Angle(d, isneg::Bool=false) = Angle(d, 0, 0.0, isneg)
+Angle(d, isneg::Bool=false) = Angle(abs(d), 0, 0.0, isneg || d < 0)
 
 """
     Angle(d, m, isneg::Bool=false) -> Angle
@@ -54,7 +54,7 @@ julia> Angle(45,15,true)
 -45°15'00.00''
 ```
 """
-Angle(d,m,isneg::Bool=false) = Angle(d,m,0,isneg)
+Angle(d,m,isneg::Bool=false) = Angle(abs(d),m,0,isneg || d < 0)
 
 """
     Angle(d, m, s::Real) -> Angle
@@ -70,7 +70,7 @@ julia> Angle(45,15,2.1)
 45°15'02.10''
 ```
 """
-Angle(d,m,s::Real) = Angle(d,m,s,false)
+Angle(d,m,s::Real) = Angle(abs(d),m,s,d < 0)
 
 function Base.show(io::IO, angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
@@ -87,7 +87,7 @@ Convert Angle in DMS format to a decimal.
 """
 function angle_to_decimal(angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
-  sign = isnegative ? -1 : 1
+  sign = (isnegative || degrees < 0) ? -1 : 1
   decimal_minutes = seconds / 60
   total_minutes = minutes + decimal_minutes
   decimal_degrees = total_minutes / 60

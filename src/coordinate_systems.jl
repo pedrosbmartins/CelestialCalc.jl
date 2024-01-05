@@ -3,10 +3,12 @@
 
 Coordinate system for locating a point in Earth's surface.
 """
-struct LatLng
+@kwdef struct LatLng
   latitude::Float64
   longitude::Float64
 end
+
+LatLng(lat::Angle,lng::Angle) = LatLng(angle_to_decimal(lat),angle_to_decimal(lng))
 
 """
     EquatorialCoordinates
@@ -14,10 +16,12 @@ end
 Coordinate system for locating a point in the celestial sphere, given fixed points of reference (the celestial equator and
 the First Point of Aries). Here, `α` is right-ascention and `δ` is declination.
 """
-struct EquatorialCoordinates
+@kwdef struct EquatorialCoordinates
   α::Time
   δ::Float64
 end
+
+EquatorialCoordinates(α::Time,δ::Angle) = EquatorialCoordinates(α,angle_to_decimal(δ))
 
 function Base.show(io::IO, ec::EquatorialCoordinates)
   (; α, δ) = ec
@@ -30,7 +34,7 @@ end
 Coordinate system for locating a point in an observer's local celestial sphere, which varies with time. Here, `h` is altitude
 and `Az` is azimuth.
 """
-struct HorizonCoordinates
+@kwdef struct HorizonCoordinates
   h::Float64
   Az::Float64
 end

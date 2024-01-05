@@ -4,7 +4,11 @@ using TimeZones
 using CelestialCalc
 
 @testset "Angle" begin
-  @testset "Angle display" begin
+  @testset "Negative values" begin
+    @test Angle(13,4,10,true) == Angle(-13,4,10)
+  end
+
+  @testset "Display" begin
     @test string(Angle(24,4,18.5)) == "24°04'18.50''"
     @test string(Angle(0,30,30,true)) == "-0°30'30.00''"
   end
@@ -12,13 +16,16 @@ using CelestialCalc
   @testset "Angle to decimal" begin
     @test angle_to_decimal(Angle(24,13,18)) ≈ 24.221667
     @test angle_to_decimal(Angle(10,25,11)) ≈ 10.4197223
-    @test angle_to_decimal(Angle(13,4,10,true)) ≈ -13.0694445
+    @test angle_to_decimal(Angle(0,4,10,true)) ≈ -0.069444445
+    @test angle_to_decimal(Angle(13,4,10,true)) ≈ -13.069444445
+    @test angle_to_decimal(Angle(-13,4,10)) ≈ -13.069444445
   end
 
   @testset "decimal to Angle" begin
     @test decimal_to_angle(24.221667) == Angle(24,13,18.0)
     @test decimal_to_angle(20.352) == Angle(20,21,7.2)
     @test decimal_to_angle(10.2958) == Angle(10,17,44.88)
+    @test decimal_to_angle(-10.2958) == Angle(10,17,44.88,true)
     @test decimal_to_angle(-0.508333) == Angle(0,30,30.0,true)
   end
 end
