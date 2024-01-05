@@ -16,10 +16,10 @@ using CelestialCalc
   end
 
   @testset "decimal to Angle" begin
-    @test decimal_to_angle(24.221667) == Angle(24,13,18)
+    @test decimal_to_angle(24.221667) == Angle(24,13,18.0)
     @test decimal_to_angle(20.352) == Angle(20,21,7.2)
     @test decimal_to_angle(10.2958) == Angle(10,17,44.88)
-    @test decimal_to_angle(-0.508333) == Angle(0,30,30,true)
+    @test decimal_to_angle(-0.508333) == Angle(0,30,30.0,true)
   end
 end
 

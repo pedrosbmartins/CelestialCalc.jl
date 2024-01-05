@@ -11,18 +11,79 @@ export equatorial_to_horizon
 export cartesian_projection, stereographic_projection
 export Star, MagnitudeEffect, plot_starmap
 
+"""
+    Angle
+
+Represents an angle with degrees, minutes and seconds. The `isnegative` flag
+is used instead of allowing `degrees` to be negative for better dealing
+with negative angles smaller than 1 (example: *-0°10'10''*).
+
+# Examples
+```jldoctest
+julia> Angle(10,5,30)
+10°05'30.00''
+
+julia> Angle(45,15,2,true)
+-45°15'02.00''
+
+julia> Angle(270,55,2.1)
+270°55'02.10''
+```
+"""
 struct Angle
   degrees::Integer
   minutes::Integer
-  seconds::Float64
+  seconds::Real
   isnegative::Bool
 end
 
-Angle(x) = Angle(x,0,0)
-Angle(x,y) = Angle(x,y,0)
-Angle(x,y,z) = Angle(x,y,z,false)
-Angle(x,isneg::Bool) = Angle(x,0,0,isneg)
-Angle(x,y,isneg::Bool) = Angle(x,y,0,isneg)
+"""
+    Angle(d, isneg::Bool=false) -> Angle
+
+Construct an angle with whole degrees.
+
+# Examples
+```jldoctest
+julia> Angle(10)
+10°00'00.00''
+
+julia> Angle(45,true)
+-45°00'00.00''
+```
+"""
+Angle(d, isneg::Bool=false) = Angle(d, 0, 0.0, isneg)
+
+"""
+    Angle(d, m, isneg::Bool=false) -> Angle
+
+Construct an angle with whole degrees and minutes.
+
+# Examples
+```jldoctest
+julia> Angle(10,5)
+10°05'00.00''
+
+julia> Angle(45,15,true)
+-45°15'00.00''
+```
+"""
+Angle(d,m,isneg::Bool=false) = Angle(d,m,0,isneg)
+
+"""
+    Angle(d, m, s::Real) -> Angle
+
+Shorthand for the construction of positive angles.
+
+# Examples
+```jldoctest
+julia> Angle(10,5,30)
+10°05'30.00''
+
+julia> Angle(45,15,2.1)
+45°15'02.10''
+```
+"""
+Angle(d,m,s::Real) = Angle(d,m,s,false)
 
 function Base.show(io::IO, angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
@@ -32,6 +93,11 @@ function Base.show(io::IO, angle::Angle)
   print(io, "$(sign)$(degrees)°$(minutes)'$(seconds)''")
 end
 
+"""
+    angle_to_decimal(angle::Angle)
+
+Convert Angle in DMS format to a decimal.
+"""
 function angle_to_decimal(angle::Angle)
   (; degrees, minutes, seconds, isnegative) = angle
   sign = isnegative ? -1 : 1
@@ -42,6 +108,11 @@ function angle_to_decimal(angle::Angle)
   return sign * total_degrees
 end
 
+"""
+    time_to_decimal(time::Time)
+
+Convert Time to a decimal.
+"""
 function time_to_decimal(time::Time)
   hours = Dates.hour(time)
   minutes = Dates.minute(time)
@@ -50,7 +121,12 @@ function time_to_decimal(time::Time)
   return angle_to_decimal(Angle(hours, minutes, seconds + 0.001*milliseconds))
 end
 
-function decimal_to_angle(decimal::Float64)
+"""
+    decimal_to_angle(decimal::Real)
+
+Convert a decimal value to an [`Angle`](@ref) in DMS format.
+"""
+function decimal_to_angle(decimal::Real)
   # TODO: handle cases where minutes is ~59.999 and rounds to 60
   abs_decimal = abs(decimal)
   degrees = trunc(Int, abs_decimal)
@@ -63,16 +139,31 @@ function decimal_to_angle(decimal::Float64)
   return Angle(degrees, minutes, seconds, decimal < 0)
 end
 
-function decimal_to_time(decimal::Float64)
+"""
+    decimal_to_time(decimal::Real)
+
+Convert a decimal value to a Time object.
+"""
+function decimal_to_time(decimal::Real)
   (; degrees, minutes, seconds) = decimal_to_angle(decimal)
   milliseconds, seconds = modf(seconds)
   return Time(degrees, minutes, trunc(seconds), trunc(1000*milliseconds))
 end
 
+"""
+    local_to_universal_time(zdt::ZonedDateTime) -> ZonedDateTime
+
+Convert a ZonedDateTime in any timezone to the `UTC` timezone.
+"""
 function local_to_universal_time(zdt::ZonedDateTime)
   return astimezone(zdt, tz"UTC")
 end
 
+"""
+    solar_to_prime_sidereal_time(zdt::ZonedDateTime) -> Real
+
+Convert a ZonedDateTime to its equivalent GMST (Greenwich Mean Sidereal Time).
+"""
 function solar_to_prime_sidereal_time(zdt::ZonedDateTime)
   ut = local_to_universal_time(zdt)
   year = Dates.year(Date(ut))
@@ -91,6 +182,11 @@ function solar_to_prime_sidereal_time(zdt::ZonedDateTime)
   return GST
 end
 
+"""
+    prime_to_local_sidereal_time(prime_sidereal_time::Float64, longitude::Float64) -> Float64
+
+Find an observer's local sidereal time by adjusting prime sidereal time to its longitude.
+"""
 function prime_to_local_sidereal_time(prime_sidereal_time::Float64, longitude::Float64)
   adjust = longitude / 15
   local_sidereal_time = prime_sidereal_time + adjust
@@ -99,17 +195,33 @@ function prime_to_local_sidereal_time(prime_sidereal_time::Float64, longitude::F
   return local_sidereal_time
 end
 
+"""
+    local_civilian_to_sidereal_time(lct::ZonedDateTime, longitude::Float64) -> Float64
+
+Convert an observer's local civilian date and time (as a `ZonedDateTime`) to its corresponding local sidereal time (in decimal format).
+"""
 function local_civilian_to_sidereal_time(lct::ZonedDateTime, longitude::Float64)
   return lct |> solar_to_prime_sidereal_time |> (t -> prime_to_local_sidereal_time(t, longitude))
 end
 
 # Coordinate Systems
 
+"""
+    LatLng
+
+Coordinate system for locating a point in Earth's surface.
+"""
 struct LatLng
   latitude::Float64
   longitude::Float64
 end
 
+"""
+    EquatorialCoordinates
+
+Coordinate system for locating a point in the celestial sphere, given fixed points of reference (the celestial equator and
+the First Point of Aries). Here, `α` is right-ascention and `δ` is declination.
+"""
 struct EquatorialCoordinates
   α::Time
   δ::Float64
@@ -120,6 +232,12 @@ function Base.show(io::IO, ec::EquatorialCoordinates)
   print(io, "EquatorialCoordinates α=$α δ=$(decimal_to_angle(δ))")
 end
 
+"""
+    HorizonCoordinates
+
+Coordinate system for locating a point in an observer's local celestial sphere, which varies with time. Here, `h` is altitude
+and `Az` is azimuth.
+"""
 struct HorizonCoordinates
   h::Float64
   Az::Float64
@@ -134,10 +252,22 @@ function Base.show(io::IO, hc::HorizonCoordinates)
   print(io, "HorizonCoordinates h=$(decimal_to_angle(h)) Az=$(decimal_to_angle(Az))")
 end
 
+"""
+    equatorial_to_horizon(δ::Float64, hour_angle::Time, latitude::Float64) -> HorizonCoordinates
+
+Find the [`HorizonCoordinates`](@ref) for an object, given its declination (δ) and hour angle (H) represented as a `Time` object,
+as well as the observer's latitude.
+"""
 function equatorial_to_horizon(δ::Float64, hour_angle::Time, latitude::Float64)
   return equatorial_to_horizon(δ, time_to_decimal(hour_angle), latitude)
 end
 
+"""
+    equatorial_to_horizon(δ::Float64, hour_angle::Float64, latitude::Float64) -> HorizonCoordinates
+
+Find the [`HorizonCoordinates`](@ref) for an object, given its declination (δ) and hour angle (H) represented in decimal format,
+as well as the observer's latitude.
+"""
 function equatorial_to_horizon(δ::Float64, hour_angle::Float64, latitude::Float64)
   Φ = latitude
   H_deg = 15hour_angle
@@ -156,6 +286,11 @@ function equatorial_to_horizon(δ::Float64, hour_angle::Float64, latitude::Float
   return HorizonCoordinates(h, Az)
 end
 
+"""
+    equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_date::ZonedDateTime, latlong::LatLng) -> HorizonCoordinates
+
+Find the [`HorizonCoordinates`](@ref) for an object, given its [`EquatorialCoordinates`](@ref) and the observer's local civilizan time and position.
+"""
 function equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_date::ZonedDateTime, latlong::LatLng)
   (; α, δ) = eqcoord
   (; latitude, longitude) = latlong
@@ -167,6 +302,11 @@ function equatorial_to_horizon(eqcoord::EquatorialCoordinates, local_civilian_da
   return equatorial_to_horizon(δ, H, latitude)
 end
 
+"""
+    cartesian_projection(hcoords::HorizonCoordinates) -> [Float64,Float64,Float64]
+
+Project [`HorizonCoordinates`](@ref) to the Cartesian coordinate system.
+"""
 function cartesian_projection(hcoords::HorizonCoordinates)
   (; h, Az) = hcoords
   x = cosd(h)sind(Az)
@@ -175,6 +315,11 @@ function cartesian_projection(hcoords::HorizonCoordinates)
   return [x,y,z]
 end
 
+"""
+    cartesian_projection(hcoords::HorizonCoordinates) -> [Float64,Float64,Float64]
+
+Project [`HorizonCoordinates`](@ref) to the 2-dimensional Cartesian coordinate system using the stereographic projection.
+"""
 function stereographic_projection(hcoords::HorizonCoordinates)
   x,y,z = cartesian_projection(hcoords)
 
@@ -189,6 +334,11 @@ end
 
 # Plotting
 
+"""
+    Star
+
+Represent a star object and its data (coordinate and magnitude).
+"""
 struct Star{C<:Union{EquatorialCoordinates,HorizonCoordinates}}
   coordinates::C
   magnitude::Float64
@@ -215,18 +365,14 @@ function plot_starmap(stars::Array{Star{EquatorialCoordinates}},
   stars = [Star(equatorial_to_horizon(star.coordinates, local_civilian_date, latlong), star.magnitude) for star in stars]
   filter!(s -> s.coordinates.h >= 0, stars)
   plot_starmap(
-    stars,
-    local_civilian_date,
-    latlong;
+    stars;
     projection=projection,
     sizeeffect=sizeeffect,
     alphaeffect=alphaeffect,
     kwargs...)
 end
 
-function plot_starmap(stars::Array{Star{HorizonCoordinates}},
-                      local_civilian_date::ZonedDateTime,
-                      latlong::LatLng;
+function plot_starmap(stars::Array{Star{HorizonCoordinates}};
                       projection=stereographic_projection,
                       sizeeffect=MagnitudeEffect(0.5,3,4),
                       alphaeffect=MagnitudeEffect(0,5,4),
