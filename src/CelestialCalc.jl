@@ -10,10 +10,12 @@ export LatLng, EquatorialCoordinates, HorizonCoordinates
 export equatorial_to_horizon
 export cartesian_projection, stereographic_projection
 export Star, MagnitudeEffect, plot_starmap
+export brightstars_catalog
 
 include("Angle.jl")
 include("time.jl")
 include("coordinate_systems.jl")
 include("plotting.jl")
+include("data.jl")
 
 end

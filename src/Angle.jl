@@ -3,7 +3,9 @@
 
 Represents an angle with degrees, minutes and seconds. The `isnegative` flag
 is used instead of allowing `degrees` to be negative for better dealing
-with negative angles smaller than 1 (example: *-0°10'10''*).
+with negative angles smaller than 1 (example: *-0°10'10''*). For convenience,
+the constructors accept negative degrees, but the final object always has
+positive degrees and sets the `isnegative` as needed.
 
 # Examples
 ```jldoctest
@@ -11,6 +13,9 @@ julia> Angle(10,5,30)
 10°05'30.00''
 
 julia> Angle(45,15,2,true)
+-45°15'02.00''
+
+julia> Angle(-45,15,2)
 -45°15'02.00''
 
 julia> Angle(270,55,2.1)
