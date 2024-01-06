@@ -7,7 +7,38 @@
 
 A package that implements positional astronomy tools as described in the book [Celestial Calculations by J. L. Lawrence](https://celestialcalculations.github.io/).
 
-CelestialCalc was created for (self-)educational purposes and its main goal is teaching myself positional astronomy in more depth. The package is made available as open source for anyone interested in amateur computational astronomy. Keep in mind that Julia already has a number of astronomy packages (many of them under the [JuliaAstro](https://juliaastro.org/dev/index.html) organization) that might be a better fit for serious use.
+CelestialCalc was created for (self-)educational purposes and its main goal is teaching myself positional astronomy in more depth. The package is made available as open source for anyone interested in amateur computational astronomy. Keep in mind that Julia already has some astronomy packages (many of them under the [JuliaAstro](https://juliaastro.org/dev/index.html) organization) that might be a better fit for serious use.
+
+## Roadmap
+
+This package is a work in progress. 
+
+<details>
+<summary>Current state (loosely following the book's outline)</summary>
+  
+- [ ] Time conversions
+  - [x] LCT to UT
+  - [ ] UT to LCT
+  - [x] UT to GST
+  - [ ] GST to UT
+  - [x] GST to LST
+  - [ ] LST to GST
+- [ ] Coordinate Systems
+  - [x] Equatorial
+  - [x] Horizon
+  - [ ] Ecliptic
+  - [ ] Galactic
+  - [ ] Precession and other corrections
+- [ ] Stars
+  - [x] Equatorial to horizon coordinates
+  - [ ] Rising and setting times
+  - [x] Star maps
+- [ ] Sun
+- [ ] Moon
+- [ ] Solar System
+- [ ] Satellites
+
+</details>
 
 ## Examples
 
