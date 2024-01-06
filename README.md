@@ -1,7 +1,9 @@
+<img alt="logo" src="docs/src/assets/logo.png" width="100px" />
+
 # CelestialCalc
 
-[docs-dev-img]: https://img.shields.io/badge/docs-dev-blue.svg
-[docs-dev-url]: https://pedrosbmartins.github.io/CelestialCalc.jl/dev
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://github.com/pedrosbmartins/CelestialCalc.jl/blob/main/LICENSE)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://pedrosbmartins.github.io/CelestialCalc.jl/dev)
 
 A package that implements positional astronomy tools as described in the book [Celestial Calculations by J. L. Lawrence](https://celestialcalculations.github.io/).
 
