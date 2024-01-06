@@ -2,7 +2,7 @@
 
 A package that implements positional astronomy tools as described in the book [Celestial Calculations by J. L. Lawrence](https://celestialcalculations.github.io/).
 
-CelestialCalc was created for (self-)educational purposes and its main goal is teaching myself positional astronomy in more depth. The package is made available as open source for anyone interested in amateur astronomy. Keep in mind that Julia already has a number of astronomy packages (many of them under the [JuliaAstro](https://juliaastro.org/dev/index.html) organization) that might be more fit for serious use.
+CelestialCalc was created for (self-)educational purposes and its main goal is teaching myself positional astronomy in more depth. The package is made available as open source for anyone interested in amateur computational astronomy. Keep in mind that Julia already has a number of astronomy packages (many of them under the [JuliaAstro](https://juliaastro.org/dev/index.html) organization) that might be a better fit for serious use.
 
 ## Library Outline
 
@@ -36,12 +36,25 @@ HorizonCoordinates h=39°00'34.33'' Az=58°30'24.15''
 ### Plotting a star map
 
 ```@example 1
-using CelestialCalc, TimeZones
+using CelestialCalc, TimeZones, Plots
 
+# load the Bright Star catalog
 brightstars = brightstars_catalog()
 
+# define observer's date/time and position
 date = ZonedDateTime(2024,1,2,22,45,tz"UTC-3")
 latlng = LatLng(-22.9068, -43.1729)
 
-plot_starmap(brightstars, date, latlng; size=(900,800))
+# convert the equatorial coordinates of the catalog to the observer's horizon coordinates
+brightstars_horizon = [Star(equatorial_to_horizon(star.coordinates, date, latlng), star.magnitude) for star in brightstars]
+
+# filter only above-horizon stars within a certain magnitude
+filter!(s -> s.coordinates.h >= 0 && s.magnitude <= 4.0, brightstars_horizon)
+
+# create the star map
+plot(brightstars_horizon; size=(900,800), colormode=:dark)
 ```
+
+## Credits
+
+- Logo is the [Orbit icon created by Creative Stall Premium - Flaticon](https://www.flaticon.com/free-icons/orbit).
