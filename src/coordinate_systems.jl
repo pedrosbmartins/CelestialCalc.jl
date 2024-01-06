@@ -39,6 +39,8 @@ and `Az` is azimuth.
   Az::Float64
 end
 
+HorizonCoordinates(h::Angle,Az::Angle) = HorizonCoordinates(angle_to_decimal(h),angle_to_decimal(Az))
+
 function Base.isapprox(hc1::HorizonCoordinates, hc2::HorizonCoordinates; kwargs...)
   return isapprox(hc1.h, hc2.h; kwargs...) && isapprox(hc1.Az, hc2.Az; kwargs...)
 end
@@ -47,6 +49,8 @@ function Base.show(io::IO, hc::HorizonCoordinates)
   (; h, Az) = hc
   print(io, "HorizonCoordinates h=$(decimal_to_angle(h)) Az=$(decimal_to_angle(Az))")
 end
+
+CelestialCoordinates = Union{EquatorialCoordinates,HorizonCoordinates}
 
 """
     equatorial_to_horizon(δ::Float64, hour_angle::Time, latitude::Float64) -> HorizonCoordinates

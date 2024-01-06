@@ -5,7 +5,7 @@ import JSON
 
 Represent a star object and its data (coordinate and magnitude).
 """
-struct Star{C<:Union{EquatorialCoordinates,HorizonCoordinates}}
+@kwdef struct Star{C<:CelestialCoordinates}
   coordinates::C
   magnitude::Float64
 end
